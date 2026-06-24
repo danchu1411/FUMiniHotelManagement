@@ -2,6 +2,7 @@
   <Folder Name="/Solution Items/">
     <File Path="Database_Schema.md" />
     <File Path="Requirements_Specification.md" />
+    <File Path="UI_Specification.md" />
   </Folder>
   <Project Path="BusinessObjects/BusinessObjects.csproj" Id="a2d3bb08-29d0-48aa-9692-e7d880e7b944" />
   <Project Path="ChauTungDangWPF/ChauTungDangWPF.csproj" Id="76f70310-7ff7-41df-bf11-662a826db398" />
