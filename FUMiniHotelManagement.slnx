@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Database_Schema.md" />
+    <File Path="Requirements_Specification.md" />
+  </Folder>
+  <Project Path="FUMiniHotelManagement/FUMiniHotelManagement.csproj" />
+</Solution>
