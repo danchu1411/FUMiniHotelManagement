@@ -30,8 +30,9 @@ public partial class FuminiHotelManagementContext : DbContext
 
     private string GetConnectionString()
     {
-        IConfiguration configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true, true)
-            .AddJsonFile("appsettings.json")
+        IConfiguration configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .Build();
         return configuration["ConnectionStrings:MyStockDB"];
     }
