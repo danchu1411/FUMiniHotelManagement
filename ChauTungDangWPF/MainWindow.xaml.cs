@@ -167,7 +167,8 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Phone", Binding = new Binding("Telephone"), Width = 120 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("CustomerStatus"), Width = 100 });
 
-            _allCustomers = _context.Customers.ToList();
+            _context.ChangeTracker.Clear();
+            _allCustomers = _context.Customers.AsNoTracking().ToList();
             ResetPagination();
             DisplayPage(_allCustomers.Cast<object>().ToList());
         }
@@ -511,28 +512,49 @@ public partial class MainWindow : Window
 
     private void btnUpdate_Click(object sender, RoutedEventArgs e)
     {
-        if (_currentModule != DashboardModule.Room)
+        if (_currentModule == DashboardModule.Room)
         {
-            MessageBox.Show("Update functionality is only available for Rooms.", "Info");
+            if (dgData.SelectedItem is not RoomInformation room)
+            {
+                MessageBox.Show("Please select a room to update.", "Warning");
+                return;
+            }
+
+            var updateWindow = new UpdateRoomWindow(room)
+            {
+                Owner = this
+            };
+
+            bool? result = updateWindow.ShowDialog();
+            if (result == true)
+            {
+                LoadRoomData();
+            }
             return;
         }
 
-        if (dgData.SelectedItem is not RoomInformation room)
+        if (_currentModule == DashboardModule.Customer)
         {
-            MessageBox.Show("Please select a room to update.", "Warning");
+            if (dgData.SelectedItem is not Customer customer)
+            {
+                MessageBox.Show("Please select a customer to update.", "Warning");
+                return;
+            }
+
+            var updateWindow = new UpdateCustomerWindow(customer)
+            {
+                Owner = this
+            };
+
+            bool? result = updateWindow.ShowDialog();
+            if (result == true)
+            {
+                LoadCustomerData();
+            }
             return;
         }
 
-        var updateWindow = new UpdateRoomWindow(room)
-        {
-            Owner = this
-        };
-
-        bool? result = updateWindow.ShowDialog();
-        if (result == true)
-        {
-            LoadRoomData();
-        }
+        MessageBox.Show("Update functionality is only available for Rooms and Customers.", "Info");
     }
 
     private void btnDelete_Click(object sender, RoutedEventArgs e)
