@@ -161,10 +161,6 @@
                                    Foreground="#16213E"
                                    FontSize="28"
                                    FontWeight="SemiBold" />
-                        <TextBlock Text="UI base aligned with requirement: tabs, search, CRUD actions and reports."
-                                   Foreground="#667085"
-                                   FontSize="12"
-                                   Margin="0,6,0,0" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -185,7 +181,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel>
-                        <TextBlock Text="Search / Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock Text="Search" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
                         <TextBox x:Name="txtSearch" Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" />
                     </StackPanel>
 
@@ -231,13 +227,6 @@
                               GridLinesVisibility="Horizontal"
                               SelectionMode="Single"
                               Margin="0,0,0,12">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80" />
-                            <DataGridTextColumn Header="Name / Number" Binding="{Binding Name}" Width="*" />
-                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120" />
-                            <DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="160" />
-                        </DataGrid.Columns>
                     </DataGrid>
 
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
