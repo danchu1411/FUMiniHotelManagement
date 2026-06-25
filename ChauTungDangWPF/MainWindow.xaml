@@ -215,7 +215,7 @@
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                         <Button x:Name="btnCreate" Content="Create" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreate_Click" />
-                        <Button x:Name="btnUpdate" Content="Update" Background="{StaticResource SuccessAction}" Style="{StaticResource ActionButtonStyle}" />
+                        <Button x:Name="btnUpdate" Content="Update" Background="{StaticResource SuccessAction}" Style="{StaticResource ActionButtonStyle}" Click="btnUpdate_Click" />
                         <Button x:Name="btnDelete" Content="Delete" Background="{StaticResource WarningAction}" Style="{StaticResource ActionButtonStyle}" Click="btnDelete_Click" />
 
                     </StackPanel>

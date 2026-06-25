@@ -469,6 +469,32 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void btnUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Room)
+        {
+            MessageBox.Show("Update functionality is only available for Rooms.", "Info");
+            return;
+        }
+
+        if (dgData.SelectedItem is not RoomInformation room)
+        {
+            MessageBox.Show("Please select a room to update.", "Warning");
+            return;
+        }
+
+        var updateWindow = new UpdateRoomWindow(room)
+        {
+            Owner = this
+        };
+
+        bool? result = updateWindow.ShowDialog();
+        if (result == true)
+        {
+            LoadRoomData();
+        }
+    }
+
     private void btnDelete_Click(object sender, RoutedEventArgs e)
     {
         if (dgData.SelectedItem == null)
