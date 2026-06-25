@@ -134,28 +134,6 @@
                                    FontSize="13"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,24" />
-
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <Border Width="12" Height="12" CornerRadius="6" Background="#0099FF" Margin="0,0,10,0" />
-                            <TextBlock Text="Admin dashboard with full management tools"
-                                       Foreground="White"
-                                       FontFamily="Montserrat"
-                                       FontSize="12" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                            <Border Width="12" Height="12" CornerRadius="6" Background="#DA34AE" Margin="0,0,10,0" />
-                            <TextBlock Text="Customer dashboard with restricted permissions"
-                                       Foreground="White"
-                                       FontFamily="Montserrat"
-                                       FontSize="12" />
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="12" Height="12" CornerRadius="6" Background="#28AEED" Margin="0,0,10,0" />
-                            <TextBlock Text="Modern UI with transparent window and gradient styling"
-                                       Foreground="White"
-                                       FontFamily="Montserrat"
-                                       FontSize="12" />
-                        </StackPanel>
                     </StackPanel>
                 </Grid>
 
