@@ -90,7 +90,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Margin="0,8,0,28">
-                    <TextBlock Text="@ Hotel Management"
+                    <TextBlock Text="Hotel Management"
                                Foreground="White"
                                FontSize="24"
                                FontWeight="SemiBold"
@@ -107,10 +107,10 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,12" />
 
-                    <Button Content="Room / RoomType" Style="{StaticResource NavButtonStyle}" />
-                    <Button Content="Customer" Style="{StaticResource NavButtonStyle}" />
-                    <Button Content="Order" Style="{StaticResource NavButtonStyle}" />
-                    <Button Content="Stat / Status Report" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Room / RoomType" Tag="Room" Click="NavButton_Click" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Customer" Tag="Customer" Click="NavButton_Click" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Order" Tag="Order" Click="NavButton_Click" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Status Report" x:Name="btnReport" Tag="Report" Click="NavButton_Click" Style="{StaticResource NavButtonStyle}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="2">
@@ -121,6 +121,7 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,6" />
                     <TextBlock Text="Admin"
+                               x:Name="txtCurrentUser"
                                Foreground="White"
                                FontSize="14"
                                FontWeight="SemiBold"
@@ -154,7 +155,9 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel>
-                        <TextBlock Text="Main Dashboard"
+                        <TextBlock 
+                                   x:Name="txtModuleTitle"
+                                   Text="Main Dashboard"
                                    Foreground="#16213E"
                                    FontSize="28"
                                    FontWeight="SemiBold" />
@@ -165,10 +168,6 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock Text="Admin / Customer Name"
-                                   Foreground="#344054"
-                                   FontWeight="SemiBold"
-                                   HorizontalAlignment="Right" />
                         <TextBlock Text="Status: Ready"
                                    Foreground="#667085"
                                    FontSize="12"
@@ -187,12 +186,12 @@
 
                     <StackPanel>
                         <TextBlock Text="Search / Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBox Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" />
+                        <TextBox x:Name="txtSearch" Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="12,0,0,0">
                         <TextBlock Text="Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <ComboBox Height="40" Padding="10,0">
+                        <ComboBox x:Name="cboFilter" Height="40" Padding="10,0">
                             <ComboBoxItem Content="All" IsSelected="True" />
                             <ComboBoxItem Content="Room / RoomType" />
                             <ComboBoxItem Content="Customer" />

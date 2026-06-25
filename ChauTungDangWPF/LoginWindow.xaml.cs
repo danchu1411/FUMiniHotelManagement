@@ -41,6 +41,7 @@ public partial class LoginWindow : Window
             {
                 string displayName = string.IsNullOrWhiteSpace(customer.CustomerFullName) ? customer.EmailAddress : customer.CustomerFullName;
                 var MainWindow = new MainWindow(isAdmin: false, displayName: displayName);
+                MainWindow.Show();
                 Close();
                 return;
             }
