@@ -1,0 +1,60 @@
+<Window x:Class="ChauTungDangWPF.CreateRoomTypeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Create Room Type" 
+        Height="550" 
+        Width="700"
+        WindowStartupLocation="CenterOwner"
+        Background="#F3F6FB"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#344054" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+
+        <Style x:Key="InputStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#D0D8FF" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0,0,0,20" />
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="40,35,40,35">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="Create New Room Type"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="#0B1030"
+                       Margin="0,0,0,35" />
+
+            <TextBlock Grid.Row="1" Text="Room Type Name *" Style="{StaticResource LabelStyle}" />
+            <TextBox x:Name="txtRoomTypeName" Grid.Row="2" Style="{StaticResource InputStyle}" />
+
+            <TextBlock Grid.Row="3" Text="Description" Style="{StaticResource LabelStyle}" />
+            <TextBox x:Name="txtDescription" Grid.Row="4" Style="{StaticResource InputStyle}" Height="100" TextWrapping="Wrap" AcceptsReturn="True" />
+
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button x:Name="btnSave" Content="Save" Width="130" Height="48" Background="#0099FF" Foreground="White" FontWeight="SemiBold" FontSize="14" BorderThickness="0" Margin="0,0,15,0" Click="btnSave_Click" Cursor="Hand" />
+                <Button x:Name="btnCancel" Content="Cancel" Width="130" Height="48" Background="#E4E7EC" Foreground="#344054" FontWeight="SemiBold" FontSize="14" BorderThickness="0" Click="btnCancel_Click" Cursor="Hand" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>

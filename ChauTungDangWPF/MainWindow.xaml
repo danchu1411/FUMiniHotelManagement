@@ -214,7 +214,9 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <Button x:Name="btnCreate" Content="Create" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreate_Click" />
+                        <Button x:Name="btnCreateRoom" Content="Create Room" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateRoom_Click" />
+                        <Button x:Name="btnCreateRoomType" Content="Create Room Type" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateRoomType_Click" />
+                        <Button x:Name="btnCreateCustomer" Content="Create Customer" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateCustomer_Click" />
                         <Button x:Name="btnUpdate" Content="Update" Background="{StaticResource SuccessAction}" Style="{StaticResource ActionButtonStyle}" Click="btnUpdate_Click" />
                         <Button x:Name="btnDelete" Content="Delete" Background="{StaticResource WarningAction}" Style="{StaticResource ActionButtonStyle}" Click="btnDelete_Click" />
 

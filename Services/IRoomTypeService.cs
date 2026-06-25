@@ -7,5 +7,8 @@ namespace Services
     {
         List<RoomType> GetAllRoomTypes();
         RoomType? GetRoomTypeById(int roomTypeId);
+        void AddRoomType(RoomType roomType);
+        void UpdateRoomType(RoomType roomType);
+        void DeleteRoomType(RoomType roomType);
     }
 }

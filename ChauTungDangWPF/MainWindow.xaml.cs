@@ -81,6 +81,10 @@ public partial class MainWindow : Window
         cboFilter.Items.Clear();
         txtSearch.Text = string.Empty;
 
+        btnCreateRoom.Visibility = Visibility.Collapsed;
+        btnCreateRoomType.Visibility = Visibility.Collapsed;
+        btnCreateCustomer.Visibility = Visibility.Collapsed;
+
         switch (module)
         {
             case DashboardModule.Room:
@@ -89,6 +93,8 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Room Number");
                 cboFilter.Items.Add("Room Type");
                 cboFilter.Items.Add("Status");
+                btnCreateRoom.Visibility = Visibility.Visible;
+                btnCreateRoomType.Visibility = Visibility.Visible;
                 LoadRoomData();
                 break;
 
@@ -98,6 +104,7 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Customer Name");
                 cboFilter.Items.Add("Email");
                 cboFilter.Items.Add("Phone Number");
+                btnCreateCustomer.Visibility = Visibility.Visible;
                 LoadCustomerData();
                 break;
 
@@ -134,7 +141,11 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Price/Day", Binding = new Binding("RoomPricePerDay"), Width = 100 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("RoomStatus"), Width = 100 });
 
-            _allRooms = _context.RoomInformations.Include(r => r.RoomType).ToList();
+            _context.ChangeTracker.Clear();
+            _allRooms = _context.RoomInformations
+                .AsNoTracking()
+                .Include(r => r.RoomType)
+                .ToList();
             ResetPagination();
             DisplayPage(_allRooms.Cast<object>().ToList());
         }
@@ -431,34 +442,63 @@ public partial class MainWindow : Window
         Close();
     }
 
-    private void btnCreate_Click(object sender, RoutedEventArgs e)
+    private void btnCreateRoom_Click(object sender, RoutedEventArgs e)
     {
-        if (_currentModule == DashboardModule.Room)
+        if (_currentModule != DashboardModule.Room)
         {
-            var createWindow = new CreateRoomWindow();
-            bool? result = createWindow.ShowDialog();
-
-            if (result == true)
-            {
-                LoadRoomData();
-            }
+            MessageBox.Show("Create Room is only available in Room Management.", "Info");
+            return;
         }
-        else if (_currentModule == DashboardModule.Customer)
-        {
-            var createWindow = new CreateCustomerWindow
-            {
-                Owner = this
-            };
-            bool? result = createWindow.ShowDialog();
 
-            if (result == true)
-            {
-                LoadCustomerData();
-            }
-        }
-        else
+        var createWindow = new CreateRoomWindow
         {
-            MessageBox.Show("Create functionality is only available for Rooms and Customers.", "Info");
+            Owner = this
+        };
+
+        bool? result = createWindow.ShowDialog();
+        if (result == true)
+        {
+            LoadRoomData();
+        }
+    }
+
+    private void btnCreateRoomType_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Room)
+        {
+            MessageBox.Show("Create Room Type is only available in Room Management.", "Info");
+            return;
+        }
+
+        var createWindow = new CreateRoomTypeWindow
+        {
+            Owner = this
+        };
+
+        bool? result = createWindow.ShowDialog();
+        if (result == true)
+        {
+            LoadRoomData();
+        }
+    }
+
+    private void btnCreateCustomer_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Customer)
+        {
+            MessageBox.Show("Create Customer is only available in Customer Management.", "Info");
+            return;
+        }
+
+        var createWindow = new CreateCustomerWindow
+        {
+            Owner = this
+        };
+
+        bool? result = createWindow.ShowDialog();
+        if (result == true)
+        {
+            LoadCustomerData();
         }
     }
 
