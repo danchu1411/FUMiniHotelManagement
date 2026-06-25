@@ -182,12 +182,12 @@
 
                     <StackPanel>
                         <TextBlock Text="Search" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBox x:Name="txtSearch" Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" />
+                        <TextBox x:Name="txtSearch" Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" TextChanged="txtSearch_TextChanged" />
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="12,0,0,0">
                         <TextBlock Text="Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <ComboBox x:Name="cboFilter" Height="40" Padding="10,0">
+                        <ComboBox x:Name="cboFilter" Height="40" Padding="10,0" SelectionChanged="cboFilter_SelectionChanged">
                             <ComboBoxItem Content="All" IsSelected="True" />
                             <ComboBoxItem Content="Room / RoomType" />
                             <ComboBoxItem Content="Customer" />
@@ -200,7 +200,8 @@
                             Width="110"
                             Margin="12,24,0,0"
                             Background="{StaticResource PrimaryAction}"
-                            Style="{StaticResource ActionButtonStyle}" />
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="btnFind_Click" />
                 </Grid>
             </Border>
 
