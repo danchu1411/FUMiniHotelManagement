@@ -219,7 +219,8 @@
                                        FontFamily="Montserrat"
                                        Margin="0,0,0,6" />
                             <TextBox x:Name="txtUser"
-                                     Margin="0,0,0,18" />
+                                     Margin="0,0,0,18" 
+                                     Text="admin@FUMiniHotelSystem.com"/>
 
                             <TextBlock Text="Password"
                                        Foreground="DarkGray"
@@ -227,7 +228,8 @@
                                        FontFamily="Montserrat"
                                        Margin="0,0,0,6" />
                             <PasswordBox x:Name="txtPass"
-                                         Margin="0,0,0,28" />
+                                         Margin="0,0,0,28" 
+                                         Password="@@abc123@@"/>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button x:Name="btnLogin"

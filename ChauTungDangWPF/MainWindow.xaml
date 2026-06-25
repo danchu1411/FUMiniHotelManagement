@@ -231,9 +231,10 @@
                     </DataGrid>
 
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Content="1" Width="36" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" />
-                        <Button Content="2" Width="36" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" />
-                        <Button Content="3" Width="36" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" />
+                        <Button x:Name="btnPrev" Content="◀ Prev" Width="60" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" Click="btnPrev_Click" />
+                        <StackPanel x:Name="paginationPanel" Orientation="Horizontal" Margin="10,0" VerticalAlignment="Center" />
+                        <Button x:Name="btnNext" Content="Next ▶" Width="60" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" Click="btnNext_Click" />
+                        <TextBlock x:Name="txtPageInfo" Text="Page 1 of 1" Margin="20,0,0,0" VerticalAlignment="Center" Foreground="#344054" FontSize="12" FontWeight="SemiBold" />
                     </StackPanel>
                 </Grid>
             </Border>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 using BusinessObjects;
 using DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,12 @@ public partial class MainWindow : Window
     private IEnumerable<RoomInformation> _allRooms = new List<RoomInformation>();
     private IEnumerable<Customer> _allCustomers = new List<Customer>();
     private IEnumerable<BookingReservation> _allOrders = new List<BookingReservation>();
+
+    // Pagination
+    private const int ITEMS_PER_PAGE = 10;
+    private int _currentPage = 1;
+    private int _totalPages = 1;
+    private List<object> _currentPageData = new List<object>();
 
     public MainWindow(bool isAdmin, string displayName)
     {
@@ -128,7 +135,8 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("RoomStatus"), Width = 100 });
 
             _allRooms = _context.RoomInformations.Include(r => r.RoomType).ToList();
-            dgData.ItemsSource = _allRooms;
+            ResetPagination();
+            DisplayPage(_allRooms.Cast<object>().ToList());
         }
         catch (Exception ex)
         {
@@ -149,7 +157,8 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("CustomerStatus"), Width = 100 });
 
             _allCustomers = _context.Customers.ToList();
-            dgData.ItemsSource = _allCustomers;
+            ResetPagination();
+            DisplayPage(_allCustomers.Cast<object>().ToList());
         }
         catch (Exception ex)
         {
@@ -173,7 +182,8 @@ public partial class MainWindow : Window
                 .Include(b => b.Customer)
                 .Include(b => b.BookingDetails)
                 .ToList();
-            dgData.ItemsSource = _allOrders;
+            ResetPagination();
+            DisplayPage(_allOrders.Cast<object>().ToList());
         }
         catch (Exception ex)
         {
@@ -210,46 +220,31 @@ public partial class MainWindow : Window
 
     private void ApplyFilter()
     {
+        if (_isInitializing)
+            return;
+
+        if (string.IsNullOrEmpty(txtSearch.Text) || txtSearch.Text == "Search keyword or date...")
+            return;
+
         try
         {
-            string searchText = (txtSearch.Text ?? string.Empty).ToLower().Trim();
-
-            if (searchText == "search keyword or date..." || string.IsNullOrEmpty(searchText))
-            {
-                switch (_currentModule)
-                {
-                    case DashboardModule.Room:
-                        if (_allRooms != null)
-                            dgData.ItemsSource = _allRooms.ToList();
-                        break;
-                    case DashboardModule.Customer:
-                        if (_allCustomers != null)
-                            dgData.ItemsSource = _allCustomers.ToList();
-                        break;
-                    case DashboardModule.Order:
-                        if (_allOrders != null)
-                            dgData.ItemsSource = _allOrders.ToList();
-                        break;
-                }
-                return;
-            }
-
+            string searchText = txtSearch.Text.ToLower().Trim();
             string filterType = cboFilter.SelectedItem?.ToString() ?? "All";
 
             switch (_currentModule)
             {
                 case DashboardModule.Room:
-                    if (_allRooms != null)
+                    if (_allRooms != null && _allRooms.Any())
                         FilterRooms(searchText, filterType);
                     break;
 
                 case DashboardModule.Customer:
-                    if (_allCustomers != null)
+                    if (_allCustomers != null && _allCustomers.Any())
                         FilterCustomers(searchText, filterType);
                     break;
 
                 case DashboardModule.Order:
-                    if (_allOrders != null)
+                    if (_allOrders != null && _allOrders.Any())
                         FilterOrders(searchText, filterType);
                     break;
             }
@@ -286,7 +281,7 @@ public partial class MainWindow : Window
                 {
                     filtered = filtered.Where(r => r.RoomStatus != null && r.RoomStatus.ToString().Contains(searchText));
                 }
-                else // "All" or any other case
+                else 
                 {
                     filtered = filtered.Where(r =>
                         (r.RoomNumber != null && r.RoomNumber.ToLower().Contains(searchText)) ||
@@ -296,7 +291,8 @@ public partial class MainWindow : Window
                 }
             }
 
-            dgData.ItemsSource = filtered.ToList();
+            ResetPagination();
+            DisplayPage(filtered.Cast<object>().ToList());
         }
         catch (Exception ex)
         {
@@ -330,7 +326,7 @@ public partial class MainWindow : Window
                 {
                     filtered = filtered.Where(c => c.Telephone != null && c.Telephone.ToLower().Contains(searchText));
                 }
-                else // "All" or any other case
+                else
                 {
                     filtered = filtered.Where(c =>
                         (c.CustomerFullName != null && c.CustomerFullName.ToLower().Contains(searchText)) ||
@@ -339,11 +335,12 @@ public partial class MainWindow : Window
                 }
             }
 
-            dgData.ItemsSource = filtered.ToList();
+            ResetPagination();
+            DisplayPage(filtered.Cast<object>().ToList());
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Error in FilterCustomers: {ex.Message}", "Error");
+
         }
     }
 
@@ -373,7 +370,7 @@ public partial class MainWindow : Window
                 {
                     filtered = filtered.Where(o => o.BookingStatus != null && o.BookingStatus.ToString().Contains(searchText));
                 }
-                else // "All" or any other case
+                else
                 {
                     filtered = filtered.Where(o =>
                         o.BookingReservationId.ToString().Contains(searchText) ||
@@ -382,7 +379,8 @@ public partial class MainWindow : Window
                 }
             }
 
-            dgData.ItemsSource = filtered.ToList();
+            ResetPagination();
+            DisplayPage(filtered.Cast<object>().ToList());
         }
         catch (Exception ex)
         {
@@ -400,5 +398,106 @@ public partial class MainWindow : Window
         var login = new LoginWindow();
         login.Show();
         Close();
+    }
+
+    private void DisplayPage(List<object> data)
+    {
+        if (data == null || data.Count == 0)
+        {
+            dgData.ItemsSource = null;
+            _totalPages = 1;
+            _currentPage = 1;
+            UpdatePaginationUI(new List<object>());
+            return;
+        }
+
+        _totalPages = (int)Math.Ceiling((double)data.Count / ITEMS_PER_PAGE);
+
+        if (_currentPage > _totalPages)
+            _currentPage = _totalPages;
+
+        if (_currentPage < 1)
+            _currentPage = 1;
+
+        int startIndex = (_currentPage - 1) * ITEMS_PER_PAGE;
+        int endIndex = Math.Min(startIndex + ITEMS_PER_PAGE, data.Count);
+
+        _currentPageData = data.GetRange(startIndex, endIndex - startIndex);
+        dgData.ItemsSource = _currentPageData;
+
+        UpdatePaginationUI(_currentPageData);
+    }
+
+    private void UpdatePaginationUI(List<object> pageData)
+    {
+        txtPageInfo.Text = $"Page {_currentPage} of {_totalPages}";
+
+        paginationPanel.Children.Clear();
+
+        for (int i = 1; i <= _totalPages; i++)
+        {
+            int pageNum = i;
+            Button pageBtn = new Button
+            {
+                Content = i.ToString(),
+                Width = 36,
+                Height = 32,
+                Margin = new Thickness(4, 0, 4, 0),
+                Background = new SolidColorBrush(i == _currentPage ? System.Windows.Media.Colors.LightBlue : System.Windows.Media.Colors.White),
+                Foreground = new SolidColorBrush(System.Windows.Media.Colors.Black),
+                BorderThickness = new Thickness(1),
+                Tag = pageNum
+            };
+
+            pageBtn.Click += (s, e) =>
+            {
+                _currentPage = pageNum;
+                DisplayPage(GetCurrentData());
+            };
+
+            paginationPanel.Children.Add(pageBtn);
+
+            if (i >= 5 && _totalPages > 5)
+                break;
+        }
+
+        btnPrev.IsEnabled = _currentPage > 1;
+        btnNext.IsEnabled = _currentPage < _totalPages;
+    }
+
+    private void btnPrev_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            DisplayPage(GetCurrentData());
+        }
+    }
+
+    private void btnNext_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentPage < _totalPages)
+        {
+            _currentPage++;
+            DisplayPage(GetCurrentData());
+        }
+    }
+
+    private List<object> GetCurrentData()
+    {
+        return _currentModule switch
+        {
+            DashboardModule.Room => _allRooms.Cast<object>().ToList(),
+            DashboardModule.Customer => _allCustomers.Cast<object>().ToList(),
+            DashboardModule.Order => _allOrders.Cast<object>().ToList(),
+            _ => new List<object>()
+        };
+    }
+
+    private void ResetPagination()
+    {
+        _currentPage = 1;
+        _totalPages = 1;
+        _currentPageData.Clear();
     }
 }
