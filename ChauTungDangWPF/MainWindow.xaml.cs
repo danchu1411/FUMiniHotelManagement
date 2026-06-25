@@ -197,7 +197,25 @@ public partial class MainWindow : Window
             return;
 
         if (string.IsNullOrEmpty(txtSearch.Text) || txtSearch.Text == "Search keyword or date...")
+        {
+            ResetPagination();
+            switch (_currentModule)
+            {
+                case DashboardModule.Room:
+                    if (_allRooms != null && _allRooms.Any())
+                        DisplayPage(_allRooms.Cast<object>().ToList());
+                    break;
+                case DashboardModule.Customer:
+                    if (_allCustomers != null && _allCustomers.Any())
+                        DisplayPage(_allCustomers.Cast<object>().ToList());
+                    break;
+                case DashboardModule.Order:
+                    if (_allOrders != null && _allOrders.Any())
+                        DisplayPage(_allOrders.Cast<object>().ToList());
+                    break;
+            }
             return;
+        }
 
         ApplyFilter();
     }
@@ -223,8 +241,28 @@ public partial class MainWindow : Window
         if (_isInitializing)
             return;
 
+        // Skip if no search text
         if (string.IsNullOrEmpty(txtSearch.Text) || txtSearch.Text == "Search keyword or date...")
+        {
+            // This should not happen now, but just in case
+            ResetPagination();
+            switch (_currentModule)
+            {
+                case DashboardModule.Room:
+                    if (_allRooms != null && _allRooms.Any())
+                        DisplayPage(_allRooms.Cast<object>().ToList());
+                    break;
+                case DashboardModule.Customer:
+                    if (_allCustomers != null && _allCustomers.Any())
+                        DisplayPage(_allCustomers.Cast<object>().ToList());
+                    break;
+                case DashboardModule.Order:
+                    if (_allOrders != null && _allOrders.Any())
+                        DisplayPage(_allOrders.Cast<object>().ToList());
+                    break;
+            }
             return;
+        }
 
         try
         {
