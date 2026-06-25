@@ -431,6 +431,23 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void btnCreate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Room)
+        {
+            MessageBox.Show("Create functionality is only available for Rooms.", "Info");
+            return;
+        }
+
+        var createWindow = new CreateRoomWindow();
+        bool? result = createWindow.ShowDialog();
+
+        if (result == true)
+        {
+            LoadRoomData();
+        }
+    }
+
     private void btnLogout_Click(object sender, RoutedEventArgs e)
     {
         var login = new LoginWindow();
