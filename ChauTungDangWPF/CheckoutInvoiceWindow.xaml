@@ -1,0 +1,99 @@
+<Window x:Class="ChauTungDangWPF.CheckoutInvoiceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Invoice"
+        Height="720"
+        Width="920"
+        WindowStartupLocation="CenterOwner"
+        Background="#F3F6FB"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#344054" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Invoice / Check-out"
+                       FontSize="30"
+                       FontWeight="Bold"
+                       Foreground="#0B1030"
+                       Margin="0,0,0,24" />
+
+            <Grid Grid.Row="1" Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Reservation ID" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Name="txtReservationId" FontSize="14" Foreground="#16213E" />
+                    <TextBlock Text="Customer" Style="{StaticResource LabelStyle}" Margin="0,16,0,6" />
+                    <TextBlock x:Name="txtCustomer" FontSize="14" Foreground="#16213E" TextWrapping="Wrap" />
+                    <TextBlock Text="Booking Date" Style="{StaticResource LabelStyle}" Margin="0,16,0,6" />
+                    <TextBlock x:Name="txtBookingDate" FontSize="14" Foreground="#16213E" />
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Status" Style="{StaticResource LabelStyle}" />
+                    <TextBlock x:Name="txtStatus" FontSize="14" Foreground="#16213E" />
+                    <TextBlock Text="Invoice Total" Style="{StaticResource LabelStyle}" Margin="0,16,0,6" />
+                    <TextBlock x:Name="txtTotal" FontSize="18" FontWeight="SemiBold" Foreground="#1B7140" />
+                </StackPanel>
+            </Grid>
+
+            <DataGrid Grid.Row="2"
+                      x:Name="dgDetails"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="Horizontal"
+                      SelectionMode="Single"
+                      Margin="0,0,0,18">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Room Number" Binding="{Binding RoomNumber}" Width="120" />
+                    <DataGridTextColumn Header="Room Type" Binding="{Binding RoomTypeName}" Width="140" />
+                    <DataGridTextColumn Header="Start Date" Binding="{Binding StartDate}" Width="110" />
+                    <DataGridTextColumn Header="End Date" Binding="{Binding EndDate}" Width="110" />
+                    <DataGridTextColumn Header="Nights" Binding="{Binding Nights}" Width="70" />
+                    <DataGridTextColumn Header="Actual Price" Binding="{Binding ActualPrice}" Width="110" />
+                    <DataGridTextColumn Header="Line Total" Binding="{Binding LineTotal}" Width="110" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Confirm Payment"
+                        Width="160"
+                        Height="46"
+                        Background="#0099FF"
+                        Foreground="White"
+                        FontWeight="SemiBold"
+                        FontSize="14"
+                        BorderThickness="0"
+                        Margin="0,0,15,0"
+                        Click="btnConfirm_Click" />
+                <Button Content="Cancel"
+                        Width="130"
+                        Height="46"
+                        Background="#E4E7EC"
+                        Foreground="#344054"
+                        FontWeight="SemiBold"
+                        FontSize="14"
+                        BorderThickness="0"
+                        Click="btnCancel_Click" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>

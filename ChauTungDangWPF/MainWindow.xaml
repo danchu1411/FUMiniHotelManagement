@@ -213,14 +213,18 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                    <WrapPanel Margin="0,0,0,14">
                         <Button x:Name="btnCreateRoom" Content="Create Room" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateRoom_Click" />
                         <Button x:Name="btnCreateRoomType" Content="Create Room Type" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateRoomType_Click" />
                         <Button x:Name="btnCreateCustomer" Content="Create Customer" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateCustomer_Click" />
+                        <Button x:Name="btnCreateOrder" Content="Create Order" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCreateOrder_Click" />
+                        <Button x:Name="btnOrderDetails" Content="Details" Background="#6B7280" Style="{StaticResource ActionButtonStyle}" Click="btnOrderDetails_Click" />
+                        <Button x:Name="btnCheckInOrder" Content="Check-in" Background="{StaticResource SuccessAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCheckInOrder_Click" />
+                        <Button x:Name="btnCheckOutOrder" Content="Check-out" Background="#A855F7" Style="{StaticResource ActionButtonStyle}" Click="btnCheckOutOrder_Click" />
+                        <Button x:Name="btnCancelOrder" Content="Cancel Order" Background="{StaticResource WarningAction}" Style="{StaticResource ActionButtonStyle}" Click="btnCancelOrder_Click" />
                         <Button x:Name="btnUpdate" Content="Update" Background="{StaticResource SuccessAction}" Style="{StaticResource ActionButtonStyle}" Click="btnUpdate_Click" />
                         <Button x:Name="btnDelete" Content="Delete" Background="{StaticResource WarningAction}" Style="{StaticResource ActionButtonStyle}" Click="btnDelete_Click" />
-
-                    </StackPanel>
+                    </WrapPanel>
 
                     <DataGrid Grid.Row="1"
                               x:Name="dgData"

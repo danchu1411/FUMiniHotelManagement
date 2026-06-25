@@ -84,6 +84,13 @@ public partial class MainWindow : Window
         btnCreateRoom.Visibility = Visibility.Collapsed;
         btnCreateRoomType.Visibility = Visibility.Collapsed;
         btnCreateCustomer.Visibility = Visibility.Collapsed;
+        btnCreateOrder.Visibility = Visibility.Collapsed;
+        btnOrderDetails.Visibility = Visibility.Collapsed;
+        btnCheckInOrder.Visibility = Visibility.Collapsed;
+        btnCheckOutOrder.Visibility = Visibility.Collapsed;
+        btnCancelOrder.Visibility = Visibility.Collapsed;
+        btnUpdate.Visibility = Visibility.Collapsed;
+        btnDelete.Visibility = Visibility.Collapsed;
 
         switch (module)
         {
@@ -95,6 +102,8 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Status");
                 btnCreateRoom.Visibility = Visibility.Visible;
                 btnCreateRoomType.Visibility = Visibility.Visible;
+                btnUpdate.Visibility = Visibility.Visible;
+                btnDelete.Visibility = Visibility.Visible;
                 LoadRoomData();
                 break;
 
@@ -105,6 +114,8 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Email");
                 cboFilter.Items.Add("Phone Number");
                 btnCreateCustomer.Visibility = Visibility.Visible;
+                btnUpdate.Visibility = Visibility.Visible;
+                btnDelete.Visibility = Visibility.Visible;
                 LoadCustomerData();
                 break;
 
@@ -114,6 +125,18 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Booking ID");
                 cboFilter.Items.Add("Customer Name");
                 cboFilter.Items.Add("Status");
+                btnOrderDetails.Visibility = Visibility.Visible;
+                btnCheckInOrder.Visibility = Visibility.Visible;
+                btnCheckOutOrder.Visibility = Visibility.Visible;
+                btnCancelOrder.Visibility = Visibility.Visible;
+                if (_isAdmin)
+                {
+                    btnCreateOrder.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    btnCreateOrder.Visibility = Visibility.Collapsed;
+                }
                 LoadOrderData();
                 break;
 
@@ -190,9 +213,14 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Total Price", Binding = new Binding("TotalPrice"), Width = 120 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("BookingStatus"), Width = 100 });
 
+            _context.ChangeTracker.Clear();
             _allOrders = _context.BookingReservations
+                .AsNoTracking()
                 .Include(b => b.Customer)
                 .Include(b => b.BookingDetails)
+                    .ThenInclude(d => d.Room)
+                        .ThenInclude(r => r.RoomType)
+                .OrderByDescending(b => b.BookingDate)
                 .ToList();
             ResetPagination();
             DisplayPage(_allOrders.Cast<object>().ToList());
@@ -501,6 +529,186 @@ public partial class MainWindow : Window
         {
             LoadCustomerData();
         }
+    }
+
+    private void btnOrderDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Order)
+        {
+            MessageBox.Show("Order details are only available in Order Management.", "Info");
+            return;
+        }
+
+        var selectedOrder = LoadSelectedOrder();
+        if (selectedOrder == null)
+        {
+            MessageBox.Show("Please select an order to view its details.", "Warning");
+            return;
+        }
+
+        var detailsWindow = new OrderDetailWindow(selectedOrder)
+        {
+            Owner = this
+        };
+
+        detailsWindow.ShowDialog();
+    }
+
+    private void btnCheckInOrder_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Order)
+        {
+            MessageBox.Show("Check-in is only available in Order Management.", "Info");
+            return;
+        }
+
+        var selectedOrder = LoadSelectedOrder();
+        if (selectedOrder == null)
+        {
+            MessageBox.Show("Please select an order to check in.", "Warning");
+            return;
+        }
+
+        if (selectedOrder.BookingStatus != 1)
+        {
+            MessageBox.Show("Only booked orders can be checked in.", "Warning");
+            return;
+        }
+
+        UpdateOrderAndRooms(selectedOrder.BookingReservationId, 2, 2);
+        MessageBox.Show("Check-in confirmed.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+        LoadOrderData();
+    }
+
+    private void btnCheckOutOrder_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Order)
+        {
+            MessageBox.Show("Check-out is only available in Order Management.", "Info");
+            return;
+        }
+
+        var selectedOrder = LoadSelectedOrder();
+        if (selectedOrder == null)
+        {
+            MessageBox.Show("Please select an order to check out.", "Warning");
+            return;
+        }
+
+        if (selectedOrder.BookingStatus != 2)
+        {
+            MessageBox.Show("Only checked-in orders can be checked out.", "Warning");
+            return;
+        }
+
+        var invoiceWindow = new CheckoutInvoiceWindow(selectedOrder)
+        {
+            Owner = this
+        };
+
+        bool? result = invoiceWindow.ShowDialog();
+        if (result == true)
+        {
+            UpdateOrderAndRooms(selectedOrder.BookingReservationId, 3, 3, invoiceWindow.InvoiceTotal);
+            MessageBox.Show("Check-out completed and invoice confirmed.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            LoadOrderData();
+        }
+    }
+
+    private void btnCreateOrder_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Order)
+        {
+            MessageBox.Show("Create Order is only available in Order Management.", "Info");
+            return;
+        }
+
+        var createWindow = new CreateOrderWindow
+        {
+            Owner = this
+        };
+
+        bool? result = createWindow.ShowDialog();
+        if (result == true)
+        {
+            LoadOrderData(); 
+        }
+    }
+
+    private void btnCancelOrder_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentModule != DashboardModule.Order)
+        {
+            MessageBox.Show("Cancel is only available in Order Management.", "Info");
+            return;
+        }
+
+        var selectedOrder = LoadSelectedOrder();
+        if (selectedOrder == null)
+        {
+            MessageBox.Show("Please select an order to cancel.", "Warning");
+            return;
+        }
+
+        if (selectedOrder.BookingStatus != 1)
+        {
+            MessageBox.Show("Only booked orders can be cancelled.", "Warning");
+            return;
+        }
+
+        var confirm = MessageBox.Show("Are you sure you want to cancel this order?", "Confirm Cancel", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (confirm != MessageBoxResult.Yes)
+            return;
+
+        UpdateOrderAndRooms(selectedOrder.BookingReservationId, 0, 1);
+        MessageBox.Show("Order cancelled successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+        LoadOrderData();
+    }
+
+    private BookingReservation? LoadSelectedOrder()
+    {
+        if (dgData.SelectedItem is not BookingReservation selected)
+            return null;
+
+        using var context = new FuminiHotelManagementContext();
+        return context.BookingReservations
+            .AsNoTracking()
+            .Include(b => b.Customer)
+            .Include(b => b.BookingDetails)
+                .ThenInclude(d => d.Room)
+                    .ThenInclude(r => r.RoomType)
+            .FirstOrDefault(b => b.BookingReservationId == selected.BookingReservationId);
+    }
+
+    private void UpdateOrderAndRooms(int reservationId, byte bookingStatus, byte roomStatus, decimal? totalPrice = null)
+    {
+        using var context = new FuminiHotelManagementContext();
+        var order = context.BookingReservations
+            .Include(b => b.BookingDetails)
+                .ThenInclude(d => d.Room)
+            .FirstOrDefault(b => b.BookingReservationId == reservationId);
+
+        if (order == null)
+        {
+            MessageBox.Show("Order not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        order.BookingStatus = bookingStatus;
+        if (totalPrice.HasValue)
+        {
+            order.TotalPrice = totalPrice.Value;
+        }
+
+        foreach (var detail in order.BookingDetails)
+        {
+            if (detail.Room != null)
+            {
+                detail.Room.RoomStatus = roomStatus;
+            }
+        }
+
+        context.SaveChanges();
     }
 
     private void btnLogout_Click(object sender, RoutedEventArgs e)
