@@ -180,34 +180,45 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel>
-                        <TextBlock Text="Search" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <TextBox x:Name="txtSearch" Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" TextChanged="txtSearch_TextChanged" />
-                    </StackPanel>
+                    <Grid x:Name="gridNormalSearch" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Visible">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Search" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <TextBox x:Name="txtSearch" Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" TextChanged="txtSearch_TextChanged" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <TextBlock Text="Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <ComboBox x:Name="cboFilter" Height="40" Padding="10,0" SelectionChanged="cboFilter_SelectionChanged">
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
 
-                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                        <TextBlock Text="Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
-                        <ComboBox x:Name="cboFilter" Height="40" Padding="10,0" SelectionChanged="cboFilter_SelectionChanged">
-                            <ComboBoxItem Content="All" IsSelected="True" />
-                            <ComboBoxItem Content="Room / RoomType" />
-                            <ComboBoxItem Content="Customer" />
-                            <ComboBoxItem Content="Order" />
-                        </ComboBox>
-                    </StackPanel>
+                    <Grid x:Name="gridReportSearch" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Start Date *" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <DatePicker x:Name="dpReportStart" Height="40" Padding="5" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <TextBlock Text="End Date *" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                            <DatePicker x:Name="dpReportEnd" Height="40" Padding="5" />
+                        </StackPanel>
+                    </Grid>
 
-                    <Button Grid.Column="2"
-                            Content="Find"
-                            Width="110"
-                            Margin="12,24,0,0"
-                            Background="{StaticResource PrimaryAction}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Click="btnFind_Click" />
+                    <Button Grid.Column="2" Content="Find" Width="110" Margin="12,24,0,0" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" Click="btnFind_Click" />
                 </Grid>
             </Border>
 
             <Border Grid.Row="2" Background="{StaticResource ContentBase}" CornerRadius="16" Padding="18">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
@@ -226,17 +237,38 @@
                         <Button x:Name="btnDelete" Content="Delete" Background="{StaticResource WarningAction}" Style="{StaticResource ActionButtonStyle}" Click="btnDelete_Click" />
                     </WrapPanel>
 
-                    <DataGrid Grid.Row="1"
-                              x:Name="dgData"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              HeadersVisibility="Column"
-                              GridLinesVisibility="Horizontal"
-                              SelectionMode="Single"
-                              Margin="0,0,0,12">
-                    </DataGrid>
+                    <UniformGrid x:Name="gridReportStats" Grid.Row="1" Columns="3" Margin="0,0,0,16" Visibility="Collapsed">
+                        <Border Background="#F0F5FF" CornerRadius="8" Padding="12" Margin="0,0,8,0">
+                            <StackPanel>
+                                <TextBlock Text="Tổng doanh thu thực tế" FontSize="12" Foreground="#667085" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtTotalRevenue" Text="$0.00" FontSize="20" FontWeight="Bold" Foreground="#0099FF" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#EFFDF5" CornerRadius="8" Padding="12" Margin="4,0,4,0">
+                            <StackPanel>
+                                <TextBlock Text="Loại phòng thuê nhiều nhất" FontSize="12" Foreground="#667085" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtMostBookedRoomType" Text="N/A" FontSize="15" FontWeight="Bold" Foreground="#1B7140" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#FFF9F0" CornerRadius="8" Padding="12" Margin="8,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Khách đặt phòng nhiều nhất" FontSize="12" Foreground="#667085" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="txtTopCustomer" Text="N/A" FontSize="15" FontWeight="Bold" Foreground="#EF8F18" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <DataGrid Grid.Row="2"
+                        x:Name="dgData"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        HeadersVisibility="Column"
+                        GridLinesVisibility="Horizontal"
+                        SelectionMode="Single"
+                        Margin="0,0,0,12">
+                    </DataGrid>
+                    
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button x:Name="btnPrev" Content="◀ Prev" Width="60" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" Click="btnPrev_Click" />
                         <StackPanel x:Name="paginationPanel" Orientation="Horizontal" Margin="10,0" VerticalAlignment="Center" />
                         <Button x:Name="btnNext" Content="Next ▶" Width="60" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" Click="btnNext_Click" />

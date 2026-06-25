@@ -81,6 +81,10 @@ public partial class MainWindow : Window
         cboFilter.Items.Clear();
         txtSearch.Text = string.Empty;
 
+        gridNormalSearch.Visibility = Visibility.Visible;
+        gridReportSearch.Visibility = Visibility.Collapsed;
+        gridReportStats.Visibility = Visibility.Collapsed;
+
         btnCreateRoom.Visibility = Visibility.Collapsed;
         btnCreateRoomType.Visibility = Visibility.Collapsed;
         btnCreateCustomer.Visibility = Visibility.Collapsed;
@@ -142,8 +146,12 @@ public partial class MainWindow : Window
 
             case DashboardModule.Report:
                 txtModuleTitle.Text = "Report Management";
-                cboFilter.Items.Add("Start Date");
-                cboFilter.Items.Add("End Date");
+                gridNormalSearch.Visibility = Visibility.Collapsed;
+                gridReportSearch.Visibility = Visibility.Visible;
+                gridReportStats.Visibility = Visibility.Visible;
+                dpReportStart.SelectedDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+                dpReportEnd.SelectedDate = DateTime.Today;
+                LoadReportData();
                 break;
         }
 
@@ -231,6 +239,68 @@ public partial class MainWindow : Window
         }
     }
 
+    private void LoadReportData()
+    {
+        if (dpReportStart.SelectedDate == null || dpReportEnd.SelectedDate == null)
+            return;
+
+        DateTime startDateTime = dpReportStart.SelectedDate.Value;
+        DateTime endDateTime = dpReportEnd.SelectedDate.Value;
+
+        if (endDateTime < startDateTime)
+        {
+            MessageBox.Show("End Date must be greater than or equal to Start Date.", "Validation Error");
+            return;
+        }
+
+        try
+        {
+            dgData.Columns.Clear();
+            dgData.Columns.Add(new DataGridTextColumn { Header = "Booking ID", Binding = new Binding("BookingReservationId"), Width = 100 });
+            dgData.Columns.Add(new DataGridTextColumn { Header = "Customer", Binding = new Binding("Customer.CustomerFullName"), Width = 150 });
+            dgData.Columns.Add(new DataGridTextColumn { Header = "Booking Date", Binding = new Binding("BookingDate"), Width = 120 });
+            dgData.Columns.Add(new DataGridTextColumn { Header = "Total Price", Binding = new Binding("TotalPrice"), Width = 120 });
+            dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("BookingStatus"), Width = 100 });
+
+            DateOnly startDate = DateOnly.FromDateTime(startDateTime);
+            DateOnly endDate = DateOnly.FromDateTime(endDateTime);
+
+            var reportService = new Services.BookingReservationService();
+            var reportList = reportService.GetReportByDateRange(startDate, endDate);
+
+            reportList = reportList.OrderByDescending(b => b.BookingDate).ToList();
+
+            decimal totalRevenue = reportList.Where(o => o.BookingStatus != 0).Sum(o => o.TotalPrice ?? 0);
+            txtTotalRevenue.Text = $"${totalRevenue:N2}";
+
+            var allDetails = reportList.SelectMany(o => o.BookingDetails).ToList();
+            var mostBookedRoomType = allDetails
+                .Where(d => d.Room != null && d.Room.RoomType != null)
+                .GroupBy(d => d.Room.RoomType.RoomTypeName)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "N/A";
+            txtMostBookedRoomType.Text = mostBookedRoomType;
+
+            var topCustomer = reportList
+                .Where(o => o.Customer != null)
+                .GroupBy(o => o.Customer.CustomerFullName)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault() ?? "N/A";
+            txtTopCustomer.Text = topCustomer;
+
+            _allOrders = reportList;
+
+            ResetPagination();
+            DisplayPage(_allOrders.Cast<object>().ToList());
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error building statistic report: {ex.Message}", "Error");
+        }
+    }
+
     private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (_isInitializing)
@@ -273,7 +343,14 @@ public partial class MainWindow : Window
 
     private void btnFind_Click(object sender, RoutedEventArgs e)
     {
-        ApplyFilter();
+        if (_currentModule == DashboardModule.Report)
+        {
+            LoadReportData(); 
+        }
+        else
+        {
+            ApplyFilter(); 
+        }
     }
 
     private void ApplyFilter()
@@ -281,10 +358,8 @@ public partial class MainWindow : Window
         if (_isInitializing)
             return;
 
-        // Skip if no search text
         if (string.IsNullOrEmpty(txtSearch.Text) || txtSearch.Text == "Search keyword or date...")
         {
-            // This should not happen now, but just in case
             ResetPagination();
             switch (_currentModule)
             {
@@ -962,6 +1037,7 @@ public partial class MainWindow : Window
             DashboardModule.Room => _allRooms.Cast<object>().ToList(),
             DashboardModule.Customer => _allCustomers.Cast<object>().ToList(),
             DashboardModule.Order => _allOrders.Cast<object>().ToList(),
+            DashboardModule.Report => _allOrders.Cast<object>().ToList(),
             _ => new List<object>()
         };
     }
