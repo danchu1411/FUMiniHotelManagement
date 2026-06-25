@@ -26,17 +26,22 @@ public partial class LoginWindow : Window
 
         try
         {
-            if (_customerService.IsAdmin(email, password))
+            bool isAdmin = _customerService.IsAdmin(email, password);
+
+            if (isAdmin)
             {
-                MessageBox.Show("Đăng nhập Admin thành công. Main Window đang implement.", "Login thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                var MainWindow = new MainWindow(isAdmin: true, displayName: "Admin");
+                MainWindow.Show();
+                Close();
                 return;
             }
 
             var customer = _customerService.Login(email, password);
             if (customer != null)
             {
-                string customerName = string.IsNullOrWhiteSpace(customer.CustomerFullName) ? customer.EmailAddress : customer.CustomerFullName;
-                MessageBox.Show($"Đăng nhập thành công. Xin chào {customerName}. Main Window đang implement.", "Login thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                string displayName = string.IsNullOrWhiteSpace(customer.CustomerFullName) ? customer.EmailAddress : customer.CustomerFullName;
+                var MainWindow = new MainWindow(isAdmin: false, displayName: displayName);
+                Close();
                 return;
             }
 

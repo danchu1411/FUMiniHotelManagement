@@ -4,9 +4,23 @@ namespace ChauTungDangWPF;
 
 public partial class MainWindow : Window
 {
-    public MainWindow()
+    private readonly bool _isAdmin;
+    private readonly string _displayName;
+
+    public MainWindow(bool isAdmin, string displayName)
     {
         InitializeComponent();
+        _isAdmin = isAdmin;
+        _displayName = displayName;
+        Loaded += MainWindow_Loaded;
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        if(_isAdmin)
+        {
+
+        }
     }
 
     private void btnClose_Click(object sender, RoutedEventArgs e)
@@ -16,6 +30,8 @@ public partial class MainWindow : Window
 
     private void btnLogout_Click(object sender, RoutedEventArgs e)
     {
-        MessageBox.Show("Logout flow is not implemented yet.", "Logout", MessageBoxButton.OK, MessageBoxImage.Information);
+        var login = new LoginWindow();
+        login.Show();
+        Close();
     }
 }
