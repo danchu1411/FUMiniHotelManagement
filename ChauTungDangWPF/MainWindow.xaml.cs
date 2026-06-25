@@ -455,6 +455,113 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void btnDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if (dgData.SelectedItem == null)
+        {
+            MessageBox.Show("Please select an item to delete.", "Warning");
+            return;
+        }
+
+        var result = MessageBox.Show("Are you sure you want to delete this item?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (result != MessageBoxResult.Yes)
+            return;
+
+        try
+        {
+            switch (_currentModule)
+            {
+                case DashboardModule.Room:
+                    DeleteRoom();
+                    break;
+                case DashboardModule.Customer:
+                    DeleteCustomer();
+                    break;
+                case DashboardModule.Order:
+                    DeleteOrder();
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error deleting item: {ex.Message}", "Error");
+        }
+    }
+
+    private void DeleteRoom()
+    {
+        if (dgData.SelectedItem is not RoomInformation room)
+            return;
+
+        try
+        {
+            var hasBookings = _context.BookingDetails.Any(bd => bd.RoomId == room.RoomId);
+
+            if (hasBookings)
+            {
+                room.RoomStatus = 0;
+                _context.RoomInformations.Update(room);
+                MessageBox.Show("Room marked as inactive (has booking history).", "Info");
+            }
+            else
+            {
+                _context.RoomInformations.Remove(room);
+                MessageBox.Show("Room deleted successfully.", "Success");
+            }
+
+            _context.SaveChanges();
+            LoadRoomData();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error deleting room: {ex.Message}", "Error");
+        }
+    }
+
+    private void DeleteCustomer()
+    {
+        if (dgData.SelectedItem is not Customer customer)
+            return;
+
+        try
+        {
+            var hasBookings = _context.BookingReservations.Any(br => br.CustomerId == customer.CustomerId);
+
+            if (hasBookings)
+            {
+                MessageBox.Show("Cannot delete customer with existing bookings.", "Warning");
+                return;
+            }
+
+            _context.Customers.Remove(customer);
+            _context.SaveChanges();
+            MessageBox.Show("Customer deleted successfully.", "Success");
+            LoadCustomerData();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error deleting customer: {ex.Message}", "Error");
+        }
+    }
+
+    private void DeleteOrder()
+    {
+        if (dgData.SelectedItem is not BookingReservation order)
+            return;
+
+        try
+        {
+            _context.BookingReservations.Remove(order);
+            _context.SaveChanges();
+            MessageBox.Show("Booking deleted successfully.", "Success");
+            LoadOrderData();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error deleting booking: {ex.Message}", "Error");
+        }
+    }
+
     private void DisplayPage(List<object> data)
     {
         if (data == null || data.Count == 0)
