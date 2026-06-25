@@ -5,8 +5,256 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChauTungDangWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Hotel Management"
+        Height="780"
+        Width="1280"
+        WindowStartupLocation="CenterScreen"
+        Background="#F3F6FB">
+    <Window.Resources>
+        <SolidColorBrush x:Key="SidebarBase" Color="#0E1330" />
+        <SolidColorBrush x:Key="SidebarAccent" Color="#472FDE" />
+        <SolidColorBrush x:Key="ContentBase" Color="White" />
+        <SolidColorBrush x:Key="PrimaryAction" Color="#0099FF" />
+        <SolidColorBrush x:Key="SuccessAction" Color="#1B7140" />
+        <SolidColorBrush x:Key="WarningAction" Color="#A2AA3D" />
+        <SolidColorBrush x:Key="DangerAction" Color="#EF8F18" />
 
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="#1C244D" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontFamily" Value="Segoe UI" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="RootBorder" CornerRadius="10" Background="{TemplateBinding Background}">
+                            <ContentPresenter Margin="16,0" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="Background" Value="#263165" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="MinWidth" Value="110" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="8" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Padding="24">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#0B1030" Offset="0" />
+                    <GradientStop Color="#141B45" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,8,0,28">
+                    <TextBlock Text="@ Hotel Management"
+                               Foreground="White"
+                               FontSize="24"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,6" />
+                    <TextBlock Text="Dashboard"
+                               Foreground="#C7C9E2"
+                               FontSize="12" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <TextBlock Text="Modules"
+                               Foreground="#8F96C9"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12" />
+
+                    <Button Content="Room / RoomType" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Customer" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Order" Style="{StaticResource NavButtonStyle}" />
+                    <Button Content="Stat / Status Report" Style="{StaticResource NavButtonStyle}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="2">
+                    <Border Height="1" Background="#303A72" Margin="0,0,0,16" />
+                    <TextBlock Text="Current User"
+                               Foreground="#8F96C9"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,6" />
+                    <TextBlock Text="Admin"
+                               Foreground="White"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,16" />
+
+                    <Button x:Name="btnLogout"
+                            Content="Logout"
+                            Background="#2C3A78"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Click="btnLogout_Click" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Background="{StaticResource ContentBase}" CornerRadius="16" Padding="22" Margin="0,0,0,18">
+                <Border.Effect>
+                    <DropShadowEffect Color="#000000" BlurRadius="18" ShadowDepth="4" Opacity="0.12" />
+                </Border.Effect>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Main Dashboard"
+                                   Foreground="#16213E"
+                                   FontSize="28"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="UI base aligned with requirement: tabs, search, CRUD actions and reports."
+                                   Foreground="#667085"
+                                   FontSize="12"
+                                   Margin="0,6,0,0" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="Admin / Customer Name"
+                                   Foreground="#344054"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Right" />
+                        <TextBlock Text="Status: Ready"
+                                   Foreground="#667085"
+                                   FontSize="12"
+                                   HorizontalAlignment="Right" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Background="{StaticResource ContentBase}" CornerRadius="16" Padding="18" Margin="0,0,0,18">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Search / Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBox Height="40" Padding="12,0" Text="Search keyword or date..." Foreground="#98A2B3" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                        <TextBlock Text="Filter" Foreground="#344054" FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <ComboBox Height="40" Padding="10,0">
+                            <ComboBoxItem Content="All" IsSelected="True" />
+                            <ComboBoxItem Content="Room / RoomType" />
+                            <ComboBoxItem Content="Customer" />
+                            <ComboBoxItem Content="Order" />
+                        </ComboBox>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Content="Find"
+                            Width="110"
+                            Margin="12,24,0,0"
+                            Background="{StaticResource PrimaryAction}"
+                            Style="{StaticResource ActionButtonStyle}" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Background="{StaticResource ContentBase}" CornerRadius="16" Padding="18">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <Button x:Name="btnCreate" Content="Create" Background="{StaticResource PrimaryAction}" Style="{StaticResource ActionButtonStyle}" />
+                        <Button x:Name="btnUpdate" Content="Update" Background="{StaticResource SuccessAction}" Style="{StaticResource ActionButtonStyle}" />
+                        <Button x:Name="btnDelete" Content="Delete" Background="{StaticResource WarningAction}" Style="{StaticResource ActionButtonStyle}" />
+                        <Button x:Name="btnClose" Content="Close" Background="{StaticResource DangerAction}" Style="{StaticResource ActionButtonStyle}" Click="btnClose_Click" />
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              x:Name="dgData"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              HeadersVisibility="Column"
+                              GridLinesVisibility="Horizontal"
+                              SelectionMode="Single"
+                              Margin="0,0,0,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80" />
+                            <DataGridTextColumn Header="Name / Number" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="120" />
+                            <DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="160" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="1" Width="36" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" />
+                        <Button Content="2" Width="36" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" />
+                        <Button Content="3" Width="36" Height="32" Margin="4,0" Background="#E4E7EC" Foreground="#344054" BorderThickness="0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <TextBlock Grid.Row="3"
+                       Text="Requirement-aligned dashboard base | Create / Update in dialogs | Delete requires confirmation"
+                       Foreground="#667085"
+                       FontSize="11"
+                       Margin="0,14,0,0"
+                       HorizontalAlignment="Center" />
+        </Grid>
     </Grid>
 </Window>
