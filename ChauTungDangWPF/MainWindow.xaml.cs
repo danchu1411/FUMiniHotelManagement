@@ -433,18 +433,32 @@ public partial class MainWindow : Window
 
     private void btnCreate_Click(object sender, RoutedEventArgs e)
     {
-        if (_currentModule != DashboardModule.Room)
+        if (_currentModule == DashboardModule.Room)
         {
-            MessageBox.Show("Create functionality is only available for Rooms.", "Info");
-            return;
+            var createWindow = new CreateRoomWindow();
+            bool? result = createWindow.ShowDialog();
+
+            if (result == true)
+            {
+                LoadRoomData();
+            }
         }
-
-        var createWindow = new CreateRoomWindow();
-        bool? result = createWindow.ShowDialog();
-
-        if (result == true)
+        else if (_currentModule == DashboardModule.Customer)
         {
-            LoadRoomData();
+            var createWindow = new CreateCustomerWindow
+            {
+                Owner = this
+            };
+            bool? result = createWindow.ShowDialog();
+
+            if (result == true)
+            {
+                LoadCustomerData();
+            }
+        }
+        else
+        {
+            MessageBox.Show("Create functionality is only available for Rooms and Customers.", "Info");
         }
     }
 
