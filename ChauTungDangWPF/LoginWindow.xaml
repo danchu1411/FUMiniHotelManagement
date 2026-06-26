@@ -198,7 +198,7 @@
                                        Margin="0,0,0,6" />
                             <TextBox x:Name="txtUser"
                                      Margin="0,0,0,18" 
-                                     Text="admin@FUMiniHotelSystem.com"/>
+                                     Text="WilliamShakespeare@FUMiniHotel.org"/>
 
                             <TextBlock Text="Password"
                                        Foreground="DarkGray"
@@ -207,7 +207,7 @@
                                        Margin="0,0,0,6" />
                             <PasswordBox x:Name="txtPass"
                                          Margin="0,0,0,28" 
-                                         Password="@@abc123@@"/>
+                                         Password="123@"/>
 
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button x:Name="btnLogin"

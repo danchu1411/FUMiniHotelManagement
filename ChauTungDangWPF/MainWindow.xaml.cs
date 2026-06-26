@@ -117,10 +117,14 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Room Number");
                 cboFilter.Items.Add("Room Type");
                 cboFilter.Items.Add("Status");
-                btnCreateRoom.Visibility = Visibility.Visible;
-                btnCreateRoomType.Visibility = Visibility.Visible;
-                btnUpdate.Visibility = Visibility.Visible;
-                btnDelete.Visibility = Visibility.Visible;
+
+                if (_isAdmin)
+                {
+                    btnCreateRoom.Visibility = Visibility.Visible;
+                    btnCreateRoomType.Visibility = Visibility.Visible;
+                    btnUpdate.Visibility = Visibility.Visible;
+                    btnDelete.Visibility = Visibility.Visible;
+                }
                 LoadRoomData();
                 break;
 
@@ -130,9 +134,15 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Customer Name");
                 cboFilter.Items.Add("Email");
                 cboFilter.Items.Add("Phone Number");
-                btnCreateCustomer.Visibility = Visibility.Visible;
+
+                if (_isAdmin)
+                {
+                    btnCreateCustomer.Visibility = Visibility.Visible;
+                    btnDelete.Visibility = Visibility.Visible;
+                }
+
                 btnUpdate.Visibility = Visibility.Visible;
-                btnDelete.Visibility = Visibility.Visible;
+
                 LoadCustomerData();
                 break;
 
@@ -142,17 +152,15 @@ public partial class MainWindow : Window
                 cboFilter.Items.Add("Booking ID");
                 cboFilter.Items.Add("Customer Name");
                 cboFilter.Items.Add("Status");
+
                 btnOrderDetails.Visibility = Visibility.Visible;
-                btnCheckInOrder.Visibility = Visibility.Visible;
-                btnCheckOutOrder.Visibility = Visibility.Visible;
                 btnCancelOrder.Visibility = Visibility.Visible;
+
                 if (_isAdmin)
                 {
                     btnCreateOrder.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    btnCreateOrder.Visibility = Visibility.Collapsed;
+                    btnCheckInOrder.Visibility = Visibility.Visible;
+                    btnCheckOutOrder.Visibility = Visibility.Visible;
                 }
                 LoadOrderData();
                 break;
@@ -247,7 +255,39 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Total Price", Binding = new Binding("TotalPrice"), Width = 120 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("BookingStatus"), Width = 100 });
 
-            _allOrders = _bookingService.GetAllBookingReservations().OrderByDescending(b => b.BookingDate).ToList();
+            var rawOrders = _bookingService.GetAllBookingReservations();
+            var allCustomers = _customerService.GetAllCustomers();
+
+            if (!_isAdmin)
+            {
+                var currentCustomer = allCustomers.FirstOrDefault(c => c.CustomerFullName == _displayName || c.EmailAddress == _displayName);
+
+                if (currentCustomer != null)
+                {
+                    rawOrders = rawOrders.Where(o => o.CustomerId == currentCustomer.CustomerId).ToList();
+                }
+                else
+                {
+                    rawOrders = new List<BookingReservation>();
+                }
+            }
+
+            var cleanOrders = new List<BookingReservation>();
+            foreach (var o in rawOrders)
+            {
+                var cust = allCustomers.FirstOrDefault(c => c.CustomerId == o.CustomerId);
+                cleanOrders.Add(new BookingReservation
+                {
+                    BookingReservationId = o.BookingReservationId,
+                    BookingDate = o.BookingDate,
+                    TotalPrice = o.TotalPrice,
+                    CustomerId = o.CustomerId,
+                    BookingStatus = o.BookingStatus,
+                    Customer = cust != null ? new Customer { CustomerFullName = cust.CustomerFullName } : null
+                });
+            }
+
+            _allOrders = cleanOrders.OrderByDescending(b => b.BookingDate).ToList();
 
             ResetPagination();
             DisplayPage(_allOrders.Cast<object>().ToList());
