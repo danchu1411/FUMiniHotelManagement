@@ -2,17 +2,21 @@ using System;
 using System.Windows;
 using BusinessObjects;
 using DataAccessLayer;
+using Services;
 
 namespace ChauTungDangWPF;
 
 public partial class CreateRoomWindow : Window
 {
-    private readonly FuminiHotelManagementContext _context;
+    private readonly IRoomInformationService _roomInformationService;
+    private readonly IRoomTypeService _roomTypeService;
 
     public CreateRoomWindow()
     {
         InitializeComponent();
         _context = new FuminiHotelManagementContext();
+        _roomInformationService = new RoomInformationService();
+        _roomTypeService = new RoomTypeService();
         LoadRoomTypes();
     }
 
@@ -20,7 +24,8 @@ public partial class CreateRoomWindow : Window
     {
         try
         {
-            cboRoomType.ItemsSource = _context.RoomTypes.ToList();
+            cboRoomType.ItemsSource = _roomTypeService.GetAllRoomTypes();
+
             cboRoomType.DisplayMemberPath = "RoomTypeName";
             cboRoomType.SelectedValuePath = "RoomTypeId";
         }
@@ -44,11 +49,10 @@ public partial class CreateRoomWindow : Window
                 RoomMaxCapacity = int.Parse(txtCapacity.Text.Trim()),
                 RoomPricePerDay = decimal.Parse(txtPrice.Text.Trim()),
                 RoomTypeId = (int)cboRoomType.SelectedValue,
-                RoomStatus = 1 
+                RoomStatus = 1
             };
 
-            _context.RoomInformations.Add(newRoom);
-            _context.SaveChanges();
+            _roomInformationService.AddRoom(newRoom);
 
             MessageBox.Show("Room created successfully!", "Success");
             DialogResult = true;

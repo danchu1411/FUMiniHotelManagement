@@ -8,6 +8,7 @@ using System.Windows.Media;
 using BusinessObjects;
 using DataAccessLayer;
 using Microsoft.EntityFrameworkCore;
+using Services;
 
 namespace ChauTungDangWPF;
 
@@ -16,6 +17,12 @@ public partial class MainWindow : Window
     private readonly bool _isAdmin;
     private readonly string _displayName;
     private readonly FuminiHotelManagementContext _context;
+    private readonly IRoomInformationService _roomService;
+    private readonly IRoomInformationService _roomInformationService;
+    private readonly ICustomerService _customerService;
+    private readonly IBookingReservationService _bookingService;
+    private readonly IBookingDetailService _bookingDetailService;
+    private readonly IRoomTypeService _roomTypeService;
 
     private enum DashboardModule
     {
@@ -44,6 +51,12 @@ public partial class MainWindow : Window
         _isAdmin = isAdmin;
         _displayName = displayName;
         _context = new FuminiHotelManagementContext();
+        _roomService = new RoomInformationService();
+        _customerService = new CustomerService();
+        _bookingService = new BookingReservationService();
+        _bookingDetailService = new BookingDetailService();
+        _roomTypeService = new RoomTypeService();
+        _roomInformationService = new RoomInformationService();
         Loaded += MainWindow_Loaded;
     }
 
@@ -172,11 +185,18 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Price/Day", Binding = new Binding("RoomPricePerDay"), Width = 100 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("RoomStatus"), Width = 100 });
 
-            _context.ChangeTracker.Clear();
-            _allRooms = _context.RoomInformations
-                .AsNoTracking()
-                .Include(r => r.RoomType)
-                .ToList();
+            var rawRooms = _roomService.GetAllRooms();
+            var allRoomTypes = _roomTypeService.GetAllRoomTypes();
+
+            foreach (var r in rawRooms)
+            {
+                if (r.RoomType == null)
+                {
+                    r.RoomType = allRoomTypes.FirstOrDefault(t => t.RoomTypeId == r.RoomTypeId);
+                }
+            }
+
+            _allRooms = rawRooms;
             ResetPagination();
             DisplayPage(_allRooms.Cast<object>().ToList());
         }
@@ -198,8 +218,14 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Phone", Binding = new Binding("Telephone"), Width = 120 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("CustomerStatus"), Width = 100 });
 
-            _context.ChangeTracker.Clear();
-            _allCustomers = _context.Customers.AsNoTracking().ToList();
+            var rawCustomers = _customerService.GetAllCustomers();
+
+            if (!_isAdmin)
+            {
+                rawCustomers = rawCustomers.Where(c => c.CustomerFullName == _displayName || c.EmailAddress == _displayName).ToList();
+            }
+
+            _allCustomers = rawCustomers;
             ResetPagination();
             DisplayPage(_allCustomers.Cast<object>().ToList());
         }
@@ -221,15 +247,8 @@ public partial class MainWindow : Window
             dgData.Columns.Add(new DataGridTextColumn { Header = "Total Price", Binding = new Binding("TotalPrice"), Width = 120 });
             dgData.Columns.Add(new DataGridTextColumn { Header = "Status", Binding = new Binding("BookingStatus"), Width = 100 });
 
-            _context.ChangeTracker.Clear();
-            _allOrders = _context.BookingReservations
-                .AsNoTracking()
-                .Include(b => b.Customer)
-                .Include(b => b.BookingDetails)
-                    .ThenInclude(d => d.Room)
-                        .ThenInclude(r => r.RoomType)
-                .OrderByDescending(b => b.BookingDate)
-                .ToList();
+            _allOrders = _bookingService.GetAllBookingReservations().OrderByDescending(b => b.BookingDate).ToList();
+
             ResetPagination();
             DisplayPage(_allOrders.Cast<object>().ToList());
         }
@@ -880,21 +899,21 @@ public partial class MainWindow : Window
 
         try
         {
-            var hasBookings = _context.BookingDetails.Any(bd => bd.RoomId == room.RoomId);
+            var hasBookings = _bookingService.GetAllBookingReservations()
+                .Any(b => b.BookingDetails != null && b.BookingDetails.Any(d => d.RoomId == room.RoomId));
 
             if (hasBookings)
             {
                 room.RoomStatus = 0;
-                _context.RoomInformations.Update(room);
-                MessageBox.Show("Room marked as inactive (has booking history).", "Info");
+                _roomService.UpdateRoom(room); 
+                MessageBox.Show("Room marked as inactive due to existing booking history.", "Info");
             }
             else
             {
-                _context.RoomInformations.Remove(room);
+                _roomService.DeleteRoom(room); 
                 MessageBox.Show("Room deleted successfully.", "Success");
             }
 
-            _context.SaveChanges();
             LoadRoomData();
         }
         catch (Exception ex)
@@ -910,7 +929,8 @@ public partial class MainWindow : Window
 
         try
         {
-            var hasBookings = _context.BookingReservations.Any(br => br.CustomerId == customer.CustomerId);
+            var hasBookings = _bookingService.GetAllBookingReservations()
+                .Any(br => br.CustomerId == customer.CustomerId); //
 
             if (hasBookings)
             {
@@ -918,8 +938,8 @@ public partial class MainWindow : Window
                 return;
             }
 
-            _context.Customers.Remove(customer);
-            _context.SaveChanges();
+            _customerService.DeleteCustomer(customer);
+
             MessageBox.Show("Customer deleted successfully.", "Success");
             LoadCustomerData();
         }
@@ -936,9 +956,10 @@ public partial class MainWindow : Window
 
         try
         {
-            _context.BookingReservations.Remove(order);
-            _context.SaveChanges();
+            _bookingService.DeleteBookingReservation(order);
+
             MessageBox.Show("Booking deleted successfully.", "Success");
+
             LoadOrderData();
         }
         catch (Exception ex)
