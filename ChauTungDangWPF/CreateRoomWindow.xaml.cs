@@ -14,7 +14,6 @@ public partial class CreateRoomWindow : Window
     public CreateRoomWindow()
     {
         InitializeComponent();
-        _context = new FuminiHotelManagementContext();
         _roomInformationService = new RoomInformationService();
         _roomTypeService = new RoomTypeService();
         LoadRoomTypes();

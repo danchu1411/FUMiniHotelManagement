@@ -1,9 +1,10 @@
+using BusinessObjects;
+using DataAccessLayer;
+using Services;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using BusinessObjects;
-using DataAccessLayer;
 
 namespace ChauTungDangWPF;
 
@@ -12,13 +13,13 @@ public partial class UpdateCustomerWindow : Window
     private static readonly Regex EmailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private static readonly Regex PhoneRegex = new(@"^\d{10,12}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private readonly FuminiHotelManagementContext _context;
+    private readonly ICustomerService _customerService;
     private readonly Customer _customer;
 
     public UpdateCustomerWindow(Customer customer)
     {
         InitializeComponent();
-        _context = new FuminiHotelManagementContext();
+        _customerService = new CustomerService();
         _customer = customer;
         dpBirthday.DisplayDateEnd = DateTime.Today.AddYears(-16);
         LoadCustomerData();
@@ -49,10 +50,10 @@ public partial class UpdateCustomerWindow : Window
             var birthday = DateOnly.FromDateTime(dpBirthday.SelectedDate!.Value);
 
             var normalizedEmail = email.ToLower();
-            var duplicateCustomer = _context.Customers.FirstOrDefault(c =>
-                c.CustomerId != _customer.CustomerId &&
-                c.EmailAddress != null &&
-                c.EmailAddress.ToLower() == normalizedEmail);
+            var duplicateCustomer = _customerService.GetAllCustomers().FirstOrDefault(c =>
+                            c.CustomerId != _customer.CustomerId &&
+                            c.EmailAddress != null &&
+                            c.EmailAddress.ToLower() == normalizedEmail);
 
             if (duplicateCustomer != null)
             {
@@ -60,7 +61,7 @@ public partial class UpdateCustomerWindow : Window
                 return;
             }
 
-            var existingCustomer = _context.Customers.FirstOrDefault(c => c.CustomerId == _customer.CustomerId);
+            var existingCustomer = _customerService.GetCustomerById(_customer.CustomerId);
             if (existingCustomer == null)
             {
                 MessageBox.Show("Customer not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -73,7 +74,7 @@ public partial class UpdateCustomerWindow : Window
             existingCustomer.CustomerBirthday = birthday;
             existingCustomer.Password = pwdPassword.Password;
 
-            _context.SaveChanges();
+            _customerService.UpdateCustomer(existingCustomer);
 
             MessageBox.Show("Customer updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             DialogResult = true;

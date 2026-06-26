@@ -1,20 +1,23 @@
+using BusinessObjects;
+using DataAccessLayer;
+using Services;
 using System;
 using System.Linq;
 using System.Windows;
-using BusinessObjects;
-using DataAccessLayer;
 
 namespace ChauTungDangWPF;
 
 public partial class UpdateRoomWindow : Window
 {
-    private readonly FuminiHotelManagementContext _context;
+    private readonly IRoomInformationService _roomService;
+    private readonly IRoomTypeService _roomTypeService;
     private readonly RoomInformation _room;
 
     public UpdateRoomWindow(RoomInformation room)
     {
         InitializeComponent();
-        _context = new FuminiHotelManagementContext();
+        _roomService = new RoomInformationService();
+        _roomTypeService = new RoomTypeService();
         _room = room;
         LoadRoomTypes();
         LoadRoomData();
@@ -24,7 +27,7 @@ public partial class UpdateRoomWindow : Window
     {
         try
         {
-            cboRoomType.ItemsSource = _context.RoomTypes.ToList();
+            cboRoomType.ItemsSource = _roomTypeService.GetAllRoomTypes();
             cboRoomType.DisplayMemberPath = "RoomTypeName";
             cboRoomType.SelectedValuePath = "RoomTypeId";
         }
@@ -52,10 +55,10 @@ public partial class UpdateRoomWindow : Window
         {
             var roomNumber = txtRoomNumber.Text.Trim();
 
-            var duplicateRoom = _context.RoomInformations.FirstOrDefault(r =>
-                r.RoomId != _room.RoomId &&
-                r.RoomNumber != null &&
-                r.RoomNumber.ToLower() == roomNumber.ToLower());
+            var duplicateRoom = _roomService.GetAllRooms().FirstOrDefault(r =>
+                            r.RoomId != _room.RoomId &&
+                            r.RoomNumber != null &&
+                            r.RoomNumber.ToLower() == roomNumber.ToLower());
 
             if (duplicateRoom != null)
             {
@@ -63,7 +66,7 @@ public partial class UpdateRoomWindow : Window
                 return;
             }
 
-            var existingRoom = _context.RoomInformations.FirstOrDefault(r => r.RoomId == _room.RoomId);
+            var existingRoom = _roomService.GetRoomById(_room.RoomId);
             if (existingRoom == null)
             {
                 MessageBox.Show("Room not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -76,7 +79,7 @@ public partial class UpdateRoomWindow : Window
             existingRoom.RoomPricePerDay = decimal.Parse(txtPrice.Text.Trim());
             existingRoom.RoomTypeId = (int)cboRoomType.SelectedValue;
 
-            _context.SaveChanges();
+            _roomService.UpdateRoom(existingRoom);
 
             MessageBox.Show("Room updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             DialogResult = true;
