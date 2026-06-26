@@ -15,7 +15,8 @@ namespace ChauTungDangWPF;
 public partial class MainWindow : Window
 {
     private readonly bool _isAdmin;
-    private readonly string _displayName;
+    private string _displayName;
+    private int _loggedInCustomerId = -1;
     private readonly FuminiHotelManagementContext _context;
     private readonly IRoomInformationService _roomService;
     private readonly IRoomInformationService _roomInformationService;
@@ -67,6 +68,13 @@ public partial class MainWindow : Window
         if (!_isAdmin)
         {
             btnReport.Visibility = Visibility.Collapsed;
+
+            var currentCust = _customerService.GetAllCustomers()
+            .FirstOrDefault(c => c.CustomerFullName == _displayName || c.EmailAddress == _displayName);
+            if (currentCust != null)
+            {
+                _loggedInCustomerId = currentCust.CustomerId;
+            }
         }
 
         LoadModule(DashboardModule.Room);
@@ -140,6 +148,10 @@ public partial class MainWindow : Window
                     btnCreateCustomer.Visibility = Visibility.Visible;
                     btnDelete.Visibility = Visibility.Visible;
                 }
+                else
+                {
+                    borderSearch.Visibility = Visibility.Collapsed;
+                }
 
                 btnUpdate.Visibility = Visibility.Visible;
 
@@ -155,10 +167,10 @@ public partial class MainWindow : Window
 
                 btnOrderDetails.Visibility = Visibility.Visible;
                 btnCancelOrder.Visibility = Visibility.Visible;
+                btnCreateOrder.Visibility = Visibility.Visible;
 
                 if (_isAdmin)
                 {
-                    btnCreateOrder.Visibility = Visibility.Visible;
                     btnCheckInOrder.Visibility = Visibility.Visible;
                     btnCheckOutOrder.Visibility = Visibility.Visible;
                 }
@@ -230,7 +242,7 @@ public partial class MainWindow : Window
 
             if (!_isAdmin)
             {
-                rawCustomers = rawCustomers.Where(c => c.CustomerFullName == _displayName || c.EmailAddress == _displayName).ToList();
+                rawCustomers = rawCustomers.Where(c => c.CustomerId == _loggedInCustomerId).ToList();
             }
 
             _allCustomers = rawCustomers;
@@ -264,7 +276,7 @@ public partial class MainWindow : Window
 
                 if (currentCustomer != null)
                 {
-                    rawOrders = rawOrders.Where(o => o.CustomerId == currentCustomer.CustomerId).ToList();
+                    rawOrders = rawOrders.Where(o => o.CustomerId == _loggedInCustomerId).ToList();
                 }
                 else
                 {
@@ -750,14 +762,14 @@ public partial class MainWindow : Window
     }
 
     private void btnCreateOrder_Click(object sender, RoutedEventArgs e)
-    {
+    {   
         if (_currentModule != DashboardModule.Order)
         {
             MessageBox.Show("Create Order is only available in Order Management.", "Info");
             return;
         }
 
-        var createWindow = new CreateOrderWindow
+        var createWindow = new CreateOrderWindow(_isAdmin, _displayName)
         {
             Owner = this
         };
@@ -888,9 +900,18 @@ public partial class MainWindow : Window
                 Owner = this
             };
 
-            bool? result = updateWindow.ShowDialog();
-            if (result == true)
+            if (updateWindow.ShowDialog() == true)
             {
+                if (!_isAdmin)
+                {
+                    var updatedCust = _customerService.GetCustomerById(_loggedInCustomerId);
+                    if (updatedCust != null)
+                    {
+                        _displayName = updatedCust.CustomerFullName;
+                        txtCurrentUser.Text = _displayName; 
+                    }
+                }
+
                 LoadCustomerData();
             }
             return;

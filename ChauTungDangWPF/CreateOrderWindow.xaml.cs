@@ -10,10 +10,12 @@ public partial class CreateOrderWindow : Window
 {
     private readonly ICustomerService _customerService;
     private readonly IRoomInformationService _roomService;
+    private readonly bool _isAdmin;
+    private readonly string _displayName;
     private readonly IBookingReservationService _reservationService;
     private readonly IBookingDetailService _bookingDetailService;
 
-    public CreateOrderWindow()
+    public CreateOrderWindow(bool isAdmin, string displayName)
     {
         InitializeComponent();
 
@@ -21,6 +23,8 @@ public partial class CreateOrderWindow : Window
         _roomService = new RoomInformationService();
         _reservationService = new BookingReservationService();
         _bookingDetailService = new BookingDetailService();
+        _isAdmin = isAdmin;
+        _displayName = displayName;
 
         LoadInitData();
     }
@@ -29,9 +33,28 @@ public partial class CreateOrderWindow : Window
     {
         try
         {
-            cboCustomer.ItemsSource = _customerService.GetAllCustomers();
+            var customers = _customerService.GetAllCustomers();
+            cboCustomer.ItemsSource = customers;
             cboCustomer.DisplayMemberPath = "CustomerFullName";
             cboCustomer.SelectedValuePath = "CustomerId";
+
+            if (!_isAdmin)
+            {
+                var currentCustomer = customers.FirstOrDefault(c =>
+                    c.CustomerFullName == _displayName || c.EmailAddress == _displayName);
+
+                if (currentCustomer != null)
+                {
+                    cboCustomer.SelectedValue = currentCustomer.CustomerId;
+                    cboCustomer.IsEnabled = false;
+                }
+                else
+                {
+                    MessageBox.Show("Could not sync your customer profile data. Action denied.", "System Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Close();
+                    return;
+                }
+            }
 
             cboRoom.ItemsSource = _roomService.GetAllRooms();
             cboRoom.DisplayMemberPath = "RoomNumber";
@@ -73,7 +96,6 @@ public partial class CreateOrderWindow : Window
             }
 
             decimal basePrice = room.RoomPricePerDay ?? 0;
-
             decimal actualPrice = _bookingDetailService.CalculateDynamicPrice(startDate, basePrice);
 
             int totalDays = (dpEndDate.SelectedDate.Value - dpStartDate.SelectedDate.Value).Days;
@@ -89,7 +111,7 @@ public partial class CreateOrderWindow : Window
                 BookingDate = DateOnly.FromDateTime(DateTime.Today),
                 TotalPrice = totalOrderPrice,
                 CustomerId = selectedCustomerId,
-                BookingStatus = 1 
+                BookingStatus = 1
             };
 
             var newDetail = new BookingDetail
@@ -104,7 +126,7 @@ public partial class CreateOrderWindow : Window
             _reservationService.AddBookingReservation(newReservation);
             _bookingDetailService.AddBookingDetail(newDetail, basePrice);
 
-            MessageBox.Show($"Booking order created successfully!\nTotal Days: {totalDays} days.\nPrice/Day applied: ${actualPrice:N2}\nTotal Revenue: ${totalOrderPrice:N2}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show($"Booking order created successfully!\nTotal Days: {totalDays} days.\nPrice/Day applied: ${actualPrice:N2}\nTotal Price: ${totalOrderPrice:N2}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             DialogResult = true;
             Close();
         }
@@ -137,7 +159,6 @@ public partial class CreateOrderWindow : Window
         DateTime startDate = dpStartDate.SelectedDate.Value;
         DateTime endDate = dpEndDate.SelectedDate.Value;
 
-        // [RULE 6] NGHIỆP VỤ: Kiểm soát chặn chọn ngày trong quá khứ và ngày đi bé hơn ngày đến
         if (startDate < DateTime.Today)
         {
             MessageBox.Show("Check-in date cannot be in the past.", "Validation Error");

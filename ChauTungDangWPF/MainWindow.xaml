@@ -172,7 +172,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Background="{StaticResource ContentBase}" CornerRadius="16" Padding="18" Margin="0,0,0,18">
+            <Border x:Name="borderSearch"  Grid.Row="1" Background="{StaticResource ContentBase}" CornerRadius="16" Padding="18" Margin="0,0,0,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*" />
